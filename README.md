@@ -75,8 +75,13 @@ site/
 
 ## Deploy
 
+- **เว็บออนไลน์ (GitHub Pages)** — https://phongsathondev.github.io/idtlm-final-review/
+  เผยแพร่จากโฟลเดอร์ `site` นี้ที่ branch `main` (root) — แก้ไฟล์แล้ว commit + push เว็บจะอัปเดตเองภายใน ~1 นาที
 - **Vercel** — ลากโฟลเดอร์ `site` ไปที่ vercel.com/new หรือรัน `vercel` ในโฟลเดอร์นี้
-- **GitHub Pages** — push โฟลเดอร์นี้ขึ้น repo แล้วเปิด Pages ที่ branch `main` / root
+- **GitHub Pages (repo อื่น)** — push โฟลเดอร์นี้ขึ้น repo แล้วเปิด Pages ที่ branch `main` / root
+
+หมายเหตุ: บนเว็บออนไลน์ ลิงก์ PDF ต้นฉบับ (path `../...`) จะแสดงเป็นชื่อไฟล์ธรรมดา
+เพราะไฟล์สไลด์ไม่ได้ถูกอัปโหลดขึ้น repo — เปิดเวอร์ชันในเครื่องเพื่อกดลิงก์ได้
 
 ## หมายเหตุ
 
