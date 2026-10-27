@@ -20,12 +20,12 @@
   --topbar-h: 56px;
   --shell-w: 1440px;
   --margin-w: 280px;
-  --read-w: 62ch;
+  --read-w: 50ch;
 
   --font-display: "IBM Plex Sans Thai Looped", "Leelawadee UI", "Tahoma", system-ui, sans-serif;
   --font-body: "Noto Sans Thai", "Leelawadee UI", "Tahoma", system-ui, sans-serif;
 
-  --step-0: 1.0625rem;
+  --step-0: 1.125rem;
   --step-1: 1.25rem;
   --step-2: 1.5rem;
   --step-3: 2rem;
@@ -485,7 +485,7 @@ button { font: inherit; color: inherit; }
 .toc-sub {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.84rem;
   font-weight: 400;
   color: var(--muted);
   line-height: 1.6;
@@ -526,7 +526,7 @@ button { font: inherit; color: inherit; }
 .group-head h1 {
   font-size: var(--step-3);
   line-height: 1.45;
-  max-width: 24ch;
+  max-width: 28ch;
 }
 
 .group-sub {
@@ -540,47 +540,204 @@ button { font: inherit; color: inherit; }
 }
 
 .group-lead {
-  margin-top: 26px;
-  font-size: 1.05rem;
-  line-height: 1.95;
-  max-width: 62ch;
+  margin-top: 28px;
+  font-size: 1.19rem;
+  line-height: 1.8;
+  max-width: 46ch;
+  color: var(--ink);
 }
 
-.prose { max-width: 62ch; }
+/* the reading column sets its own size; everything inside scales with it */
+.prose {
+  font-size: 1.125rem;
+  max-width: 50ch;
+}
 
 .sect {
-  margin-top: 38px;
-  padding-top: 22px;
-  border-top: 1px solid var(--rule-soft);
+  margin-top: clamp(38px, 4.6vw, 54px);
   scroll-margin-top: calc(var(--topbar-h) + 18px);
 }
 
-.sect h2 {
-  font-size: var(--step-1);
+.sect:first-child { margin-top: 34px; }
+
+/* a ledger-style head: the number matches the section index in the margin */
+.sect-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
-.sect p + p { margin-top: 12px; }
+.sect-num {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
 
-.sect ul,
-.sect ol {
+.sect-line {
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+.sect h2 {
+  font-size: clamp(1.5rem, 2.5vw, 1.66rem);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+  max-width: 28ch;
+  margin-bottom: 18px;
+}
+
+.sect p {
+  font-size: 1em;
+  line-height: 1.8;
+  max-width: 48ch;
+}
+
+.sect > p + p { margin-top: 1.05em; }
+
+.sect p.p-lead {
+  font-size: 1.05em;
+  line-height: 1.76;
+  color: var(--ink);
+}
+
+/* key terms: one highlighter, used on the short terms inside prose */
+.sect .p-lead b,
+.sect .p b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.sect .term-mark {
+  background-image: linear-gradient(transparent 56%, rgba(240, 223, 74, 0.66) 56%);
+  padding: 0 1px;
+}
+
+/* term → explanation rows (the shape 90% of the lecture bullets already have) */
+.defs {
   list-style: none;
-  margin: 12px 0 0;
   display: grid;
-  gap: 7px;
+  gap: 18px;
+  margin: 26px 0 0;
+  max-width: 48ch;
 }
 
-.sect li {
+.def {
   position: relative;
-  padding-left: 20px;
+  padding-left: 19px;
 }
 
-.sect li::before {
+.def::before {
   content: "";
   position: absolute;
-  left: 2px;
-  top: 0.82em;
-  width: 7px;
+  left: 0;
+  top: 0.7em;
+  width: 8px;
+  height: 1px;
+  background: var(--pencil);
+}
+
+.sect .def-term {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.02em;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.sect .def-body {
+  margin-top: 1px;
+  font-size: 1em;
+  line-height: 1.7;
+  color: #2f3631;
+}
+
+.def--plain .def-body { margin-top: 0; }
+
+/* ordered process: only where the source numbers the steps */
+.steps {
+  list-style: none;
+  counter-reset: step;
+  position: relative;
+  display: grid;
+  gap: 20px;
+  margin: 26px 0 0;
+  max-width: 48ch;
+}
+
+.steps::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 0.6em;
+  bottom: 0.6em;
+  width: 1px;
+  background: var(--rule);
+}
+
+.steps li {
+  position: relative;
+  padding-left: 38px;
+  counter-increment: step;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.16em;
+  width: 22px;
+  padding: 1px 0;
+  text-align: center;
+  background: var(--paper);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--pencil-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.sect .step-term {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.02em;
+  line-height: 1.45;
+}
+
+.sect .step-body {
+  margin-top: 1px;
+  font-size: 1em;
+  line-height: 1.7;
+  color: #2f3631;
+}
+
+/* practice / advice bullets: no term, so a plain pencil tick */
+.bullets {
+  list-style: none;
+  display: grid;
+  gap: 13px;
+  margin: 24px 0 0;
+  max-width: 48ch;
+}
+
+.bullets li {
+  position: relative;
+  padding-left: 19px;
+  font-size: 1em;
+  line-height: 1.78;
+}
+
+.bullets li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.78em;
+  width: 8px;
   height: 1px;
   background: var(--pencil);
 }
@@ -591,37 +748,47 @@ button { font: inherit; color: inherit; }
 /* ---------- focus block ---------- */
 
 .focus {
-  margin-top: 40px;
-  padding-left: 18px;
+  margin-top: 50px;
+  padding-left: 20px;
   border-left: 3px solid var(--marker);
 }
 
 .focus h2 {
-  font-size: 1.12rem;
+  font-size: 1.16rem;
   display: inline;
   background: linear-gradient(transparent 58%, var(--marker) 58%);
-  padding: 0 2px;
+  padding: 0 3px;
 }
 
 .focus ul {
   list-style: none;
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   display: grid;
-  gap: 9px;
-  max-width: 60ch;
+  gap: 11px;
+  max-width: 50ch;
 }
 
 .focus li {
   position: relative;
-  padding-left: 18px;
-  font-size: 0.98rem;
+  padding-left: 19px;
+  font-size: 1.0625rem;
+  line-height: 1.72;
 }
 
 .focus li::before {
-  content: "–";
+  content: "";
   position: absolute;
   left: 0;
-  color: var(--muted);
+  top: 0.72em;
+  width: 8px;
+  height: 1px;
+  background: var(--pencil);
+}
+
+.focus li b,
+.cram-group li b {
+  font-weight: 600;
+  color: var(--ink);
 }
 
 /* ---------- key terms ---------- */
@@ -654,18 +821,20 @@ button { font: inherit; color: inherit; }
 .terms dt {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1.0625rem;
+  line-height: 1.55;
 }
 
 .terms dd {
-  font-size: 0.92rem;
+  font-size: 1rem;
+  line-height: 1.72;
   color: #333a35;
   padding-top: 0;
   border-bottom: 1px solid var(--rule-soft);
 }
 
 @media (min-width: 720px) {
-  .terms dl { grid-template-columns: 190px minmax(0, 1fr); }
+  .terms dl { grid-template-columns: 200px minmax(0, 1fr); }
   .terms dt { border-bottom: 1px solid var(--rule-soft); padding-right: 18px; }
 }
 
@@ -783,10 +952,10 @@ button { font: inherit; color: inherit; }
 }
 
 .q-text {
-  font-size: 1.02rem;
-  line-height: 1.75;
-  max-width: 58ch;
-  margin-bottom: 14px;
+  font-size: 1.06rem;
+  line-height: 1.72;
+  max-width: 54ch;
+  margin-bottom: 16px;
 }
 
 .choices {
@@ -804,10 +973,10 @@ button { font: inherit; color: inherit; }
   background: transparent;
   border: 1px solid var(--rule);
   border-radius: 2px;
-  padding: 10px 13px;
+  padding: 11px 14px;
   cursor: pointer;
-  font-size: 0.95rem;
-  line-height: 1.65;
+  font-size: 1rem;
+  line-height: 1.7;
 }
 
 .choice:hover { border-color: var(--ink); background: var(--surface); }
@@ -843,12 +1012,13 @@ button { font: inherit; color: inherit; }
 .choice.wrong:disabled:hover { background: #f6e8e5; border-color: var(--red); }
 
 .explain {
-  margin-top: 12px;
+  margin-top: 14px;
   padding-left: 14px;
   border-left: 2px solid var(--rule);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.75;
   color: #343b36;
-  max-width: 60ch;
+  max-width: 56ch;
 }
 
 .explain b { color: var(--green); }
@@ -917,22 +1087,25 @@ button { font: inherit; color: inherit; }
 .cram-group ul {
   list-style: none;
   display: grid;
-  gap: 6px;
-  max-width: 66ch;
+  gap: 9px;
+  max-width: 56ch;
 }
 
 .cram-group li {
   position: relative;
-  padding-left: 18px;
-  font-size: 0.95rem;
-  line-height: 1.75;
+  padding-left: 19px;
+  font-size: 1.0625rem;
+  line-height: 1.72;
 }
 
 .cram-group li::before {
-  content: "–";
+  content: "";
   position: absolute;
   left: 0;
-  color: var(--pencil);
+  top: 0.78em;
+  width: 8px;
+  height: 1px;
+  background: var(--pencil);
 }
 
 /* ---------- toast ---------- */
@@ -1156,6 +1329,18 @@ button { font: inherit; color: inherit; }
   .cover { grid-template-columns: minmax(0, 1fr); gap: 30px; }
   /* the sheet is a physical card here: don't stretch it across the column */
   .cover-side { width: min(100%, 420px); }
+
+  /* below the wide layout the reading column is an island: centre it so the
+     page doesn't hug the left edge */
+  .page--read,
+  .page--quiz {
+    max-width: 52ch;
+    margin-inline: auto;
+  }
+  .page--cram {
+    max-width: 56ch;
+    margin-inline: auto;
+  }
 }
 
 @media (max-width: 620px) {
@@ -1188,7 +1373,7 @@ button { font: inherit; color: inherit; }
   .group-head h1 { font-size: 1.55rem; }
   .group-sub { gap: 4px 12px; font-size: 0.78rem; }
   .choice { padding: 9px 10px; gap: 9px; }
-  .q-text { font-size: 0.98rem; }
+  .q-text { font-size: 1rem; }
   .read-bar { gap: 10px; }
 }
 
@@ -1203,6 +1388,7 @@ button { font: inherit; color: inherit; }
   .topbar, .rail, .pager, .read-bar, .toast, .skip, .margin { display: none !important; }
   .shell { display: block; }
   .main { max-width: none; padding: 0; }
-  .sect, .focus, .terms, .sources { break-inside: avoid; }
+  .sect { break-inside: auto; }
+  .focus, .terms, .sources { break-inside: avoid; }
   a { color: #000; text-decoration: none; }
 }

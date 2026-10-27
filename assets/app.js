@@ -196,7 +196,7 @@
       '<div class="cover-copy">' +
         '<p class="eyebrow">69-1IDTLM TCT1 · ปลายภาค 28 ตุลาคม 2569</p>' +
         "<h1>อ่านให้ครบ แล้วไปฝนให้เต็มวง</h1>" +
-        '<p class="cover-lede">สรุปเนื้อหาทั้ง 11 กลุ่มข้อสอบจากสไลด์บรรยาย พร้อมแบบทดสอบสั้น ๆ ท้ายกลุ่ม — วงกลมแต่ละวงในแผ่นฝนด้านขวาจะถูกฝนขึ้นเมื่อคุณอ่านผ่านแต่ละหัวข้อ</p>' +
+        '<p class="cover-lede">สรุปเนื้อหาทั้ง 11 กลุ่มข้อสอบจากสไลด์บรรยาย พร้อมแบบทดสอบกลุ่มละ 20 ข้อ รวม 220 ข้อ — วงกลมแต่ละวงในแผ่นฝนด้านขวาจะถูกฝนขึ้นเมื่อคุณอ่านผ่านแต่ละหัวข้อ</p>' +
         '<dl class="facts">' +
           "<div><dt>จำนวนข้อ</dt><dd>140 ข้อ · 140 คะแนน</dd></div>" +
           "<div><dt>เวลาสอบ</dt><dd>3 ชั่วโมง</dd></div>" +
@@ -272,6 +272,87 @@
     });
   }
 
+  /* ---------------- section rendering ----------------
+     The lecture notes share one grammar: an intro paragraph, then bullets of
+     the shape "<b>term</b> — explanation", plus a few plainly numbered
+     processes. Render that grammar as structure instead of a wall of text. */
+
+  var ITEM_RE = /^<b>([\s\S]+?)<\/b>\s*(?:—|–|→|-)\s*([\s\S]+)$/;
+
+  function parseItem(t) {
+    var m = ITEM_RE.exec(t);
+    if (!m) return null;
+    var term = m[1];
+    var body = m[2];
+    var num = null;
+    var nm = /^(\d+)\.\s*([\s\S]+)$/.exec(term);
+    if (nm) { num = nm[1]; term = nm[2]; }
+    return { num: num, term: term, body: body };
+  }
+
+  function listHTML(items) {
+    var parsed = items.map(parseItem);
+    var hit = parsed.filter(Boolean);
+
+    if (!hit.length) {
+      return '<ul class="bullets">' +
+        items.map(function (t) { return "<li>" + t + "</li>"; }).join("") +
+        "</ul>";
+    }
+
+    var everyStep = hit.length === items.length && hit.every(function (x) { return x.num; });
+    if (everyStep) {
+      return '<ol class="steps">' + hit.map(function (x) {
+        return '<li><p class="step-term">' + x.term + "</p>" +
+          '<p class="step-body">' + x.body + "</p></li>";
+      }).join("") + "</ol>";
+    }
+
+    return '<ul class="defs">' + items.map(function (t, i) {
+      var x = parsed[i];
+      if (!x) return '<li class="def def--plain"><p class="def-body">' + t + "</p></li>";
+      return '<li class="def"><p class="def-term">' + x.term + "</p>" +
+        '<p class="def-body">' + x.body + "</p></li>";
+    }).join("") + "</ul>";
+  }
+
+  function sectionHTML(s, i) {
+    var html =
+      '<div class="sect-head"><span class="sect-num">' + pad(i + 1) + "</span>" +
+      '<span class="sect-line" aria-hidden="true"></span></div>' +
+      "<h2>" + esc(s.h) + "</h2>";
+
+    (s.p || []).forEach(function (t, j) {
+      html += '<p class="' + (j === 0 ? "p-lead" : "p") + '">' + t + "</p>";
+    });
+    if (s.li && s.li.length) html += listHTML(s.li);
+    return html;
+  }
+
+  /* Highlight only the borrowed/technical terms (Latin script) so the marker
+     marks vocabulary to memorise, not every emphasised phrase. */
+  function markTerms(root) {
+    root.querySelectorAll(".p-lead b, .p b").forEach(function (b) {
+      var txt = b.textContent.trim();
+      if (txt.length <= 34 && /[A-Za-z]/.test(txt)) b.classList.add("term-mark");
+    });
+  }
+
+  /* cram lines are mostly "term = definition"; bolding the left side lets the
+     eye find a term without reading the whole line */
+  function firm(t) {
+    var m = /^(.*(?:—|–|→)\s*)?([^=<>]{1,42}?)\s=\s/.exec(t);
+    if (!m) return t;
+    return (m[1] || "") + "<b>" + m[2] + "</b> = " + t.slice(m[0].length);
+  }
+
+  function focusBlock(g) {
+    var box = el("aside", "focus");
+    box.innerHTML = '<h2>จุดที่มักออกสอบ</h2><ul>' +
+      g.focus.map(function (t) { return "<li>" + firm(t) + "</li>"; }).join("") + "</ul>";
+    return box;
+  }
+
   /* ---------------- group ---------------- */
 
   function renderGroup(n, tab) {
@@ -313,20 +394,13 @@
       var sect = el("section", "sect");
       sect.setAttribute("data-sect", i);
       sect.id = "sect-" + g.n + "-" + i;
-      var html = "<h2>" + esc(s.h) + "</h2>";
-      (s.p || []).forEach(function (t) { html += "<p>" + t + "</p>"; });
-      if (s.li && s.li.length) {
-        html += "<ul>" + s.li.map(function (t) { return "<li>" + t + "</li>"; }).join("") + "</ul>";
-      }
-      sect.innerHTML = html;
+      sect.innerHTML = sectionHTML(s, i);
+      markTerms(sect);
       prose.appendChild(sect);
     });
     col.appendChild(prose);
 
-    var focus = el("aside", "focus");
-    focus.innerHTML = "<h2>จุดที่มักออกสอบ</h2><ul>" +
-      g.focus.map(function (t) { return "<li>" + t + "</li>"; }).join("") + "</ul>";
-    col.appendChild(focus);
+    col.appendChild(focusBlock(g));
 
     col.appendChild(termsBlock(g));
 
@@ -684,7 +758,7 @@
       var box = el("section", "cram-group");
       box.innerHTML =
         "<h2><a href=\"#/g/" + g.n + "\">" + pad(g.n) + " · " + esc(g.short) + "</a></h2>" +
-        "<ul>" + g.focus.map(function (f) { return "<li>" + f + "</li>"; }).join("") + "</ul>";
+        "<ul>" + g.focus.map(function (f) { return "<li>" + firm(f) + "</li>"; }).join("") + "</ul>";
       grid.appendChild(box);
     });
     page.appendChild(grid);
